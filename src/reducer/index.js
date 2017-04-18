@@ -1,9 +1,10 @@
 import { combineReducers } from 'redux'
 import * as constants from '../constants'
 
-const deepclone = data => {
-    return JSON.parse(JSON.stringify(data))
-}
+// commented out because testing complain unused-variable
+// const deepclone = data => {
+//     return JSON.parse(JSON.stringify(data))
+// }
 
 const tabsDefault = {
     active: 0, // index to tabs
@@ -19,7 +20,6 @@ const tabsReducer = (tabs = tabsDefault, action) => {
             console.log('tab??')
             return tabs;
         }
-
         return Object.assign({}, tabs, {
             active: tabIndex
         })

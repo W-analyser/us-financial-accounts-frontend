@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react'
 import db from '../db'
 import { connect } from 'react-redux'
@@ -5,6 +6,7 @@ import {
     f1Form_selectSymbol, f1Form_selectTable,
     f1Form_setData, plotF1Form,
 } from '../actions'
+import PropTypes from 'prop-types';
 
 
 class F1Form extends React.Component {
@@ -85,10 +87,10 @@ class F1Form extends React.Component {
     }
 }
 
-F1Form.PropTypes = {
-    tableId: React.PropTypes.number.isRequired,
-    symbolId: React.PropTypes.number.isRequired,
-    dispatch: React.PropTypes.func.isRequired
+F1Form.propTypes = {
+    tableId: PropTypes.number.isRequired,
+    symbolId: PropTypes.number.isRequired,
+    dispatch: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => {
