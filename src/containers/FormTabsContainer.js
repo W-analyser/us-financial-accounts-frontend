@@ -16,8 +16,8 @@ class FormTabsContainer extends React.Component {
 
     render() {
         const f1FormTab = (
-            <Tab label={this.props.tabs[0].name} value={0}>
-                <F1Form key='F1Form'>
+            <Tab key='F1Form3333' label={this.props.tabs[0].name} value={0}>
+                <F1Form >
                 </F1Form>
             </Tab>
             )

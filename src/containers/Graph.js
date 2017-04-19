@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import F1FormGraph from '../components/F1FormGraph'
 import { VisualState } from '../constants'
+import {Card, CardHeader, CardText} from 'material-ui/Card'
 
 // const mapStateToProps = state => {
 //     entries: state.f1Form.entries
@@ -9,23 +10,33 @@ import { VisualState } from '../constants'
 
 class Graph extends React.Component {
     render() {
+        let content;
         if (this.props.visual.curState === VisualState.Empty) {
-            return (<div> empty </div>)
+            content = (<CardText> empty </CardText>)
         } else if (this.props.visual.curState === VisualState.Pending) {
-            return (<div> waiting for result </div>)
+            content = (<CardText> waiting for result </CardText>)
         } else if (this.props.visual.curState === VisualState.SHOW) {
             if (this.props.visual.tab === 0) {
-                return (
-                    <F1FormGraph key='F1FormGraph'
-                         entries={this.props.forms.f1Form.entries}>
-                    </F1FormGraph> 
+                content = (
+                    <CardText >
+                        <F1FormGraph key='F1FormGraph'
+                             entries={this.props.forms.f1Form.entries}>
+                        </F1FormGraph> 
+                    </CardText>
                 )  
             } else {
-                return (<div> unknown form? </div>)
+                content = (<CardText> unknown form? </CardText>)
             }
         } else {
-            return (<div> error </div>)
+            content = (<CardText> error </CardText>)
         }
+
+        return  (
+            <Card>
+                <CardHeader title='Graph' />
+                {content}
+            </Card>
+            )
     }
 }
 
@@ -41,6 +52,6 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps)(F1FormGraph)
+export default connect(mapStateToProps)(Graph)
 
 
