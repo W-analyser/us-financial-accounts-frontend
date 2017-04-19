@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import React from 'react'
+import React, { Component } from 'react'
 import {Card, CardHeader, CardText} from 'material-ui/Card';
 
 class InfoPanel extends React.Component {

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { Component } from 'react'
 import F1Form from './F1Form'
 import { connect } from 'react-redux'
 import { selectTab } from '../actions'
 import { Tabs, Tab } from 'material-ui/Tabs'
+import PropTypes from 'prop-types'
 
-class FormTabsContainer extends React.Component {
+class FormTabsContainer extends Component {
     constructor(props) {
         super(props)
         this.selectTab = this.selectTab.bind(this)
@@ -33,8 +34,8 @@ class FormTabsContainer extends React.Component {
 }
 
 FormTabsContainer.PropTypes = {
-    tabs: React.PropTypes.array.isRequired,
-    active: React.PropTypes.number.isRequired
+    tabs: PropTypes.array.isRequired,
+    active: PropTypes.number.isRequired
 }
 
 const mapStateToProps = state => {

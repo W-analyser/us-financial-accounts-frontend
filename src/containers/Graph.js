@@ -1,14 +1,15 @@
-import React from 'react'
+import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import F1FormGraph from '../components/F1FormGraph'
 import { VisualState } from '../constants'
 import {Card, CardHeader, CardText} from 'material-ui/Card'
+import PropTypes from 'prop-types'
 
 // const mapStateToProps = state => {
 //     entries: state.f1Form.entries
 // }
 
-class Graph extends React.Component {
+class Graph extends Component {
     render() {
         let content;
         if (this.props.visual.curState === VisualState.Empty) {
@@ -41,8 +42,8 @@ class Graph extends React.Component {
 }
 
 Graph.PropTypes = {
-    forms: React.PropTypes.object.isRequired,
-    visual: React.PropTypes.object.isRequired
+    forms: PropTypes.object.isRequired,
+    visual: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => {

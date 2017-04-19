@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 class F1FormGraph extends React.Component {
     render() {
@@ -16,8 +17,8 @@ class F1FormGraph extends React.Component {
     }
 }
 
-F1FormGraph.PropTypes = {
-    entries: React.PropTypes.array.isRequired
+F1FormGraph.propTypes = {
+    entries: PropTypes.array.isRequired
 }
 
 export default F1FormGraph
