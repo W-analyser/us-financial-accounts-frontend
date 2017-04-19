@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import F1FormGraph from '../components/F1FormGraph'
 import { VisualState } from '../constants'
-
+import PropTypes from 'prop-types';
 // const mapStateToProps = state => {
 //     entries: state.f1Form.entries
 // }
@@ -29,9 +29,9 @@ class Graph extends React.Component {
     }
 }
 
-Graph.PropTypes = {
-    forms: React.PropTypes.object.isRequired,
-    visual: React.PropTypes.object.isRequired
+Graph.propTypes = {
+    forms: PropTypes.object.isRequired,
+    visual: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => {

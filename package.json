@@ -5,11 +5,11 @@
   "dependencies": {
     "babel-polyfill": "^6.23.0",
     "collections": "^5.0.6",
-    "material-ui": "^0.17.4",
+    "material-ui": "^1.0.0-alpha.11",
+    "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.4",
-    "react-tabs": "^0.8.2",
     "react-tap-event-plugin": "^2.0.1",
     "redux": "^3.6.0",
     "redux-logger": "^3.0.1",
