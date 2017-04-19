@@ -1,15 +1,16 @@
 import { connect } from 'react-redux'
-import React from 'react'
-import {Card, CardHeader, CardContent} from 'material-ui/Card';
+import React, { Component } from 'react'
+import {Card, CardHeader, CardText} from 'material-ui/Card';
+
 
 class InfoPanel extends React.Component {
     render() {
         return (
             <Card>
                 <CardHeader title={this.props.title} />
-                <CardContent>
+                <CardText>
                     {this.props.body}
-                </CardContent>
+                </CardText>
             </Card>
             )
     }

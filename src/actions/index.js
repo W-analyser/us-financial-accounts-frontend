@@ -24,14 +24,14 @@ const plotF1Form = ({table, symbol}) => dispatch => {
     dispatch(updateVisualState(constants.VisualState.PENDING))
     databaseInterface.getDataBySymbol(table, symbol).then(data => {
         if (data.length === 0) {
-            dispatch(displayInfoPanel('not data given the table and symbol?'))
-            dispatch(constants.VisualState.EMPTY)
+            dispatch(displayInfoPanel({title: 'warning', body: 'not data given the table and symbol?'}))
+            dispatch(updateVisualState(constants.VisualState.EMPTY))
         } else {
             dispatch(f1Form_setData(data))
             dispatch(updateVisualState(constants.VisualState.SHOW))
         }
     }, error => {
-        dispatch(displayInfoPanel(error.message))
+        dispatch(displayInfoPanel({title: 'error message', body: error.message}))
         dispatch(updateVisualState(constants.VisualState.EMPTY))
     })
 }

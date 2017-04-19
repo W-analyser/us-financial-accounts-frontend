@@ -1,11 +1,15 @@
-import 'whatwg-fetch'
+import 'isomorphic-fetch'
 import Set from 'collections/set'
+import _ from 'underscore'
 
 let endpoint;
+let fetch_mode;
 if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-    endpoint = '127.0.0.1:8000'
+    endpoint = 'http://127.0.0.1:8000/financial_accounts_us/'
+    fetch_mode = 'cors'
 } else {
     endpoint = ''
+    fetch_mode = 'basic'
 }
 
 class FinancialAccountsUSDadabaseInterface {
@@ -22,6 +26,7 @@ class FinancialAccountsUSDadabaseInterface {
         return global.financialAccountsUSDadabase_132
     }
 
+    // on success, relove(tables). tables: [{id: int, tableCode: string}]
     getAllTableCodes() {
         return new Promise((resolve, reject) => {
             if (this.db.tables !== undefined) {
@@ -32,65 +37,81 @@ class FinancialAccountsUSDadabaseInterface {
             let url = endpoint + 'api/tables'
             fetch(url, {
                 method: 'GET',
-                headers: {  
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }   
+                mode: fetch_mode
             }).then(response => {
                 if (response.status === 200) {
-                    let tables = response.json()['tables']
-                    this.db.tables = tables
-                    resolve(tables)
+                    return response.json()
                 } else {
-                    reject(new Error(response.json()['msg']))
+                    return response.json().then(data => {
+                        let msg = data.msg
+                        Promise.reject(new Error(msg))
+                    })
                 }
-            }, error => {
+            }).then(data => {
+                let tables = data.tables.map(table => {
+                    return {
+                        id: table.id,
+                        tableCode: table.table_code
+                    }
+                })
+
+                this.db.tables = tables
+                resolve(tables)
+            }).catch(error => {
                 reject(error)
             })
         })
     }
 
-    // resolve parameter: array. [{data_table_id, symbol, id, location, category, unit}].
+    // resolve parameter: array. [{dataTableId, symbol, id, location, category, unit}].
     getSymbolsByTable(tableId) {
         return new Promise((resolve, reject) => {
             if (this.db.symbolsByTableId === undefined) {
-                this.db.symbolsByTableId = new Set(null, (o1, o2) => {
-                    return o1.data_table_id === o2.data_table_id
-                })
+                // [{tableId: int, symbols: [symbol,]}
+                this.db.symbolsByTableId = [] 
+                // [symbol,]
                 this.db.symbols = []
+                // where symbol: {dataTableId, symbol, id, location, category, unit}
             }
 
-            if (this.db.symbolsByTableId.contains(tableId)) {
-                let symbolsR = this.db.symbolsByTableId.get({data_table_id: tableId})
-                let symbols = symbolsR.symbols
-                resolve(symbols)
-                return ;
-            } 
+            let symbolsContainer = _.find(this.db.symbolsByTableId, o => {
+                return o.tableId === tableId
+            })
+            if (symbolsContainer !== undefined) {
+                resolve(symbolsContainer.symbols)
+                return ;   
+            }
 
             let url = endpoint + 'api/table/' + tableId
             fetch(url, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
-                }
+                },
+                mode: fetch_mode
             }).then(response => {
                 if (response.ok) {
-                    let data = response.json()
-                    // update local database
-                    data.symbols.each(s => {
-                        s.data_table_id = tableId
-                        this.db.symbols.push(s)
-                    })
-                    this.db.symbolsByTableId.add({
-                        data_table_id: tableId,
-                        symbols: data.symbols
-                    })
-                    
-                    resolve(data.symbols)
+                    return response.json()
                 } else {
-                    reject(new Error(response.json()['msg']))
+                    return response.json().then(data => {
+                        return Promise.reject(new Error(data.msg))
+                    })
                 }
-            }, error => {
+            }).then(data => {
+                let tableId = data.data_table_id
+                let symbols = data.symbols.map(s => {
+                    s.tableId = tableId
+                    this.db.symbols.push(s) // update db
+                    return s
+                })
+                // update db
+                this.db.symbolsByTableId.push({
+                    tableId,
+                    symbols, 
+                })
+
+                resolve(symbols)
+            }).catch(error => {
                 reject(error)
             })
         })
@@ -100,15 +121,18 @@ class FinancialAccountsUSDadabaseInterface {
     getDatesByTable(tableId) {
         return new Promise((resolve, reject) => {
             if (this.db.datesByTable === undefined) {
-                this.db.datesByTable = Set(null, (o1, o2) => {
-                    return o1.data_table_id === o2.data_table_id
-                })
+                // datesByTable: [{tableId: int, dates: [date]}]
+                this.db.datesByTable = []
+                // dates: [date,]
                 this.db.dates = []
+                // where date: {tableId: int, id: int, date: string}
             }
 
-            if (this.db.datesByTable.contains({data_table_id: tableId})) {
-                let data = this.db.datesByTable.get({data_table_id: tableId})
-                resolve(data.dates)
+            let dateContainer = _.find(this.db.datesByTable, dateContainer => {
+                return dateContainer.tableId === tableId
+            })
+            if (dateContainer !== undefined) {
+                resolve(dateContainer.dates)
                 return ;
             }
 
@@ -117,21 +141,26 @@ class FinancialAccountsUSDadabaseInterface {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
-                }
+                },
+                mode: fetch_mode
             }).then(response => {
                 if (response.ok) {
-                    let data = response.json()
-                    let dates = data.dates.map(date => {
-                        date.data_table_id = data.data_table_id
-                        this.db.dates.push(date)
-                        return date
-                    })
-                    this.db.datesByTable.add({data_table_id: data.data_table_id, dates: dates})
-                    resolve(dates)
+                    return response.json()
                 } else {
-                    reject(new Error(response.json().msg))
+                    return response.json().then(data => {
+                        return Promise.reject(new Error(data.msg))
+                    })
                 }
-            }, error => {
+            }).then(data => {
+                let tableId = data.data_table_id
+                let dates = data.dates.map(date => {
+                    date.tableId = tableId
+                    this.db.dates.push(date) // add to db
+                    return date
+                })
+                this.db.datesByTable.push({ tableId, dates }) // add to db
+                resolve(dates)
+            }).catch(error => {
                 reject(error)
             })
         })
@@ -142,47 +171,55 @@ class FinancialAccountsUSDadabaseInterface {
     getDataBySymbol(tableId, symbolId) {
         let dates = this.getDatesByTable(tableId)
 
-        let entires = new Promise((resolve, reject) => {
+        // entries [{dateId, symbolId, value}]
+        let entries = new Promise((resolve, reject) => {
             // TODO caching.
             let url = endpoint + 'api/table/entries/by_symbol/' + symbolId
             fetch(url, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
-                }
+                },
+                mode: fetch_mode
             }).then(response => {
                 if (response.ok) {
-                    let data = response.json()
-                    let entries = data.entries.map(e => {
-                        return e.data
-                    })
-                    resolve(entries)
+                    return response.json()
                 } else {
-                    reject(new Error(response.json()['msg']))
+                    return response.json().then(data => {
+                        return Promise.reject(data.msg)
+                    })
                 }
-            }, error => {
+            }).then(data => {
+                let symbolId = data.symbol_id
+                let entries = data.entries.map(e => {
+                    return {
+                        symbolId: symbolId,
+                        dateId: e.date_id,
+                        value: e.data
+                    }
+                })
+                resolve(entries)
+            }).catch(error => {
                 reject(error)
             })
         })
 
         return new Promise((resolve, reject) => {
-            Promise.all([dates, entires]).then(values => {
+            Promise.all([dates, entries]).then(values => {
                 let [dates, entries] = values
-                let dateSet = new Set(dates, (o1, o2) => {
-                    return o1.id === o2.id
-                }, date => {
-                    return date.id
-                })
-                for (var i = entires.length - 1; i >= 0; i--) {
-                    let entry = entires[i]
-                    if (!dateSet.contains({ id: entry.date_id })) {
+                let ret = []
+                for (var i = entries.length - 1; i >= 0; i--) {
+                    let entry = entries[i]
+                    let date = _.find(dates, date => {
+                        return date.id === entry.dateId
+                    })
+                    if (date === undefined) {
                         reject(new Error('missing date id?'))
                         return ;
                     }
-                    let date = dateSet.get({ id: entry.date_id })
-                    entry.date = date.date
+                    ret.push({date: date.date, value: entry.value})
                 }
-                resolve(entries)
+                resolve(ret)
             }, error => {
                 reject(error)
             })
