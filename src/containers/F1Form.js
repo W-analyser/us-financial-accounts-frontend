@@ -15,18 +15,57 @@ class F1Form extends Component {
             tables: [],
             symbols: [],
             tableId: undefined,
-            symbolId: undefined
+            symbolId: undefined,
+            error: {
+                hasError: false,
+                msg: 'error'
+            }
         }
 
+        let dispatch = this.props.dispatch
         db.getAllTableCodes().then(tables => {
             this.setState({
                 tables: tables,
-                tablesWaiting: false
             })
+            return Promise.resolve(tables[0])
+        }).then(table => {
+            this.setState({
+                tableId: table.id
+            })
+            dispatch(f1Form_selectTable(table.id))
+            return db.getSymbolsByTable(table.id)
+        }).then(symbols => {
+            let symbolId = symbols[0].id
+            this.setState({
+                symbols: symbols,
+                symbolId: symbolId,
+                tablesWaiting: false,
+                error: Object.assign({}, this.state.error, {
+                    hasError: false
+                })
+            })
+            dispatch(f1Form_selectSymbol(symbolId))
+        }).catch(error => {
+            if (error !== undefined && typeof error === 'object' && error.msg !== undefined) {
+                this.setState({
+                    error: {
+                        hasError: true,
+                        msg: error.msg
+                    }
+                })
+            } else {
+                this.setState({
+                    error: {
+                        hasError: true,
+                        msg: 'error when during initialization'
+                    }
+                })        
+            }
         })
 
         this.tableSelected = this.tableSelected.bind(this)
         this.symbolSelected = this.symbolSelected.bind(this)
+        this.submit = this.submit.bind(this)
     }
 
     tableSelected(event) {
@@ -65,6 +104,10 @@ class F1Form extends Component {
     }
 
     render() {
+        if (this.state.error.hasError) {
+            return (<div> error </div>)
+        }
+
         if (this.state.tablesWaiting) {
             return ( <div> waiting... </div> )
         }
@@ -74,7 +117,7 @@ class F1Form extends Component {
         })
         let tablesDropdown = ( 
             <select value={this.props.tableId || undefined}
-                    onChange={this.tableSelected.bind(this)}>
+                    onChange={this.tableSelected}>
                 {tablesDropdownItems} 
             </select> 
             )
@@ -84,7 +127,7 @@ class F1Form extends Component {
         })
         let symbolsDropdown = ( 
             <select value={this.props.symbolId || undefined} 
-                    onChange={this.symbolSelected.bind(this)}>
+                    onChange={this.symbolSelected}>
                 {symbolsDropdownItems} 
             </select> 
             )
@@ -94,7 +137,7 @@ class F1Form extends Component {
                 <div> {tablesDropdown} </div>
                 <div> {symbolsDropdown} </div>
                 <div> 
-                    <button onClick={this.submit.bind(this)}>
+                    <button onClick={this.submit}>
                     Plot
                     </button>
                 </div>
