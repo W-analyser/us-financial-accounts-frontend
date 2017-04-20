@@ -4,7 +4,7 @@ import * as constants from '../constants'
 const tabsDefault = {
     active: 0, // index to tabs
     tabs: [{
-        name: 'F1',
+        name: 'over time by Symbol',
         code: constants.TAB_CODES.F1FORM
     }]
 }

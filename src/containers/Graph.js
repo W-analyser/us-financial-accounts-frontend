@@ -12,9 +12,9 @@ import PropTypes from 'prop-types'
 class Graph extends Component {
     render() {
         let content;
-        if (this.props.visual.curState === VisualState.Empty) {
-            content = (<CardText> empty </CardText>)
-        } else if (this.props.visual.curState === VisualState.Pending) {
+        if (this.props.visual.curState === VisualState.EMPTY) {
+            content = (<CardText> No data available </CardText>)
+        } else if (this.props.visual.curState === VisualState.PENDING) {
             content = (<CardText> waiting for result </CardText>)
         } else if (this.props.visual.curState === VisualState.SHOW) {
             if (this.props.visual.tab === 0) {
