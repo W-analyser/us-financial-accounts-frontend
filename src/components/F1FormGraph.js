@@ -7,7 +7,7 @@ class F1FormGraph extends React.Component {
         let text = ''
         for (var i = entries.length - 1; i >= 0; i--) {
             let entry = entries[i]
-            text += entry.date + ': ' + entry.data + ','
+            text += entry.date + ': ' + entry.value + ','
         }
         return (
             <div>
@@ -17,7 +17,9 @@ class F1FormGraph extends React.Component {
     }
 }
 
+
 F1FormGraph.propTypes = {
+    // [{value: float, date: string}]
     entries: PropTypes.array.isRequired
 }
 
